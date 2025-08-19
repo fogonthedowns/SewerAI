@@ -19,6 +19,7 @@ CORS(app)
 processor = SewerDataProcessor()
 ai_service = SewerAIService()
 
+# API overview and available endpoints
 @app.route('/')
 def home():
     return jsonify({
@@ -38,6 +39,7 @@ def home():
         ]
     })
 
+# List available data files with info
 @app.route('/api/files')
 def get_files():
     """GET /api/files - List available data files"""
@@ -65,6 +67,7 @@ def get_files():
         "missing_files": ["part3", "part4"]
     })
 
+# AI chat interface for data analysis
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """POST /api/chat - AI-powered conversational analysis"""
@@ -97,6 +100,7 @@ def chat():
             'response': 'I encountered an error processing your question. Please try again.'
         }), 500
 
+# Get inspection records with pagination and filters
 @app.route('/api/inspections')
 def get_inspections():
     """GET /api/inspections - List inspection records with pagination and file filtering"""
@@ -168,6 +172,7 @@ def get_inspections():
         }
     })
 
+# List cities with inspection counts
 @app.route('/api/cities')
 def get_cities():
     """GET /api/cities - List cities with inspection counts"""
@@ -187,6 +192,7 @@ def get_cities():
         'total_analyzed': analysis['total_records_analyzed']
     })
 
+# List inspection types with counts
 @app.route('/api/inspection-types')
 def get_inspection_types():
     """GET /api/inspection-types - List inspection types with counts"""
@@ -206,6 +212,7 @@ def get_inspection_types():
         'total_analyzed': analysis['total_records_analyzed']
     })
 
+# Quick overview statistics
 @app.route('/api/stats')
 def get_stats():
     """GET /api/stats - Quick overview statistics"""
