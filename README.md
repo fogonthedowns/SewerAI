@@ -13,6 +13,8 @@ Built for infrastructure engineers and city planners to gain actionable insights
 ## Quick Start
 
 ```bash
+export  OPENAI_API_KEY=""
+source .env
 # Backend (Flask API + AI)
 make install && make run        # Starts on :5001
 
