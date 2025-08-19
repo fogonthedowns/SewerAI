@@ -1,0 +1,44 @@
+@startuml Sewer AI System Interaction
+
+!theme plain
+title Sewer AI - System Interaction Flow
+
+actor "Infrastructure Engineer" as User
+participant "React Frontend\n:3000" as Frontend
+participant "Flask API\n:5001" as Backend
+participant "OpenAI\nGPT-3.5" as AI
+database "S3 Files\n(parts 1,2,5)" as S3
+
+== AI Query Flow ==
+User -> Frontend: Ask question\n"What cities have most inspections?"
+Frontend -> Backend: POST /api/chat\n{"query": "..."}
+Backend -> S3: Stream 1000 records\nfrom 3 files
+S3 --> Backend: JSON inspection data
+Backend -> AI: System prompt +\ndata context + user query
+AI --> Backend: Intelligent analysis +\nrecommendations
+Backend --> Frontend: JSON response:\n- AI text\n- Table data\n- Summary
+Frontend --> User: Display:\n- Chat response\n- Sortable table
+
+== Direct Data Access ==
+User -> Frontend: Browse data
+Frontend -> Backend: GET /api/inspections\n?city=Chicago&limit=50
+Backend -> S3: Stream filtered records
+S3 --> Backend: Matching inspections
+Backend --> Frontend: Paginated results
+Frontend --> User: Data table
+
+== File Discovery ==
+Frontend -> Backend: GET /api/files
+Backend --> Frontend: Available files:\npart1, part2, part5
+
+note right of Backend
+Streams 5GB data without
+loading into memory
+end note
+
+note right of AI
+Provides infrastructure-specific
+insights and recommendations
+end note
+
+@enduml
