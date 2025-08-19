@@ -1,5 +1,11 @@
 # Sewer AI - Municipal Infrastructure Analysis
 
+**Thank you**
+
+Thank you for considering me for this role.
+
+- [Justin Zollars](https://www.linkedin.com/in/justinzollars/)
+
 **AI-powered conversational interface**
 
 Built for infrastructure engineers and city planners to gain actionable insights from 5GB+ of historical inspection records.

@@ -62,34 +62,34 @@ class SewerAIService:
     
     def _get_city_data(self) -> dict:
         """Get city analysis data"""
-        analysis = self.processor.analyze_cities(limit=300)
+        analysis = self.processor.analyze_cities(limit=1000)  # Increased from 300
         
         table_data = {
             "columns": ["City", "Inspections", "Percentage"],
             "rows": [[city, count, f"{(count/analysis['total_records_analyzed']*100):.1f}%"] 
-                    for city, count in analysis['top_cities'][:10]]
+                    for city, count in analysis['top_cities'][:15]]  # Show top 15 instead of 10
         }
         
         return {
             "type": "cities",
             "table_data": table_data,
-            "summary": f"Analysis of {analysis['total_records_analyzed']} inspections across {analysis['unique_cities']} cities in {analysis['unique_states']} states"
+            "summary": f"Analysis of {analysis['total_records_analyzed']} inspections across {analysis['unique_cities']} cities in {analysis['unique_states']} states from 3 available data files"
         }
     
     def _get_project_data(self) -> dict:
         """Get project/inspection type analysis"""
-        analysis = self.processor.analyze_projects(limit=300)
+        analysis = self.processor.analyze_projects(limit=1000)  # Increased from 300
         
         table_data = {
             "columns": ["Inspection Type", "Count", "Percentage"],
             "rows": [[insp_type, count, f"{(count/analysis['total_records_analyzed']*100):.1f}%"] 
-                    for insp_type, count in analysis['inspection_types'][:10]]
+                    for insp_type, count in analysis['inspection_types'][:15]]  # Show more results
         }
         
         return {
             "type": "projects",
             "table_data": table_data,
-            "summary": f"Analysis of {analysis['total_records_analyzed']} inspections showing {len(analysis['inspection_types'])} different inspection types"
+            "summary": f"Analysis of {analysis['total_records_analyzed']} inspections showing {len(analysis['inspection_types'])} different inspection types from 3 data files"
         }
     
     def _get_emergency_data(self) -> dict:
