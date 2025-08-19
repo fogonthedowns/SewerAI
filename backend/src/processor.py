@@ -9,7 +9,12 @@ logger = logging.getLogger(__name__)
 class SewerDataProcessor:
     def __init__(self):
         self.base_url = "https://sewerai-public.s3.us-west-2.amazonaws.com/"
-        self.files = [f"sewer-inspections-part{i}.jsonl" for i in range(1, 6)]
+        # Only use files that actually exist: 1, 2, 5 (3, 4 are missing)
+        self.files = [
+            "sewer-inspections-part1.jsonl",
+            "sewer-inspections-part2.jsonl", 
+            "sewer-inspections-part5.jsonl"
+        ]
         
     def stream_file(self, filename: str) -> Iterator[Dict]:
         """Stream JSONL records from a single S3 file"""

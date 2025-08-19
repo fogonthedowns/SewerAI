@@ -2,7 +2,7 @@
 
 **AI-powered conversational interface**
 
-Built for to gain actionable insights from 5GB+ of historical inspection records.
+Built for infrastructure engineers and city planners to gain actionable insights from 5GB+ of historical inspection records.
 
 ## Quick Start
 
@@ -33,13 +33,95 @@ cd frontend && make install && make run  # Starts on :3000
 - **Frontend**: React + Axios + sortable data tables
 - **Communication**: RESTful JSON API with CORS
 
-## API Endpoints
+## API Reference
 
+### Data Sources
 ```bash
-GET  /api/cities           # Cities with inspection counts
-GET  /api/inspection-types # Project types analysis  
-GET  /api/inspections      # Individual records (with filters)
-POST /api/chat            # AI-powered natural language queries
+# Discover available files
+curl http://localhost:5001/api/files
+
+# API overview
+curl http://localhost:5001/
+```
+
+### Inspection Records
+```bash
+# Basic pagination
+curl "http://localhost:5001/api/inspections?limit=10&offset=0"
+curl "http://localhost:5001/api/inspections?limit=10&offset=10"
+
+# Filter by city
+curl "http://localhost:5001/api/inspections?city=Chicago&limit=5"
+curl "http://localhost:5001/api/inspections?city=Philadelphia&limit=5"
+
+# Query specific data files
+curl "http://localhost:5001/api/inspections?file=part1&limit=10"
+curl "http://localhost:5001/api/inspections?file=part2&limit=10" 
+curl "http://localhost:5001/api/inspections?file=part5&limit=10"
+
+# Combined filters
+curl "http://localhost:5001/api/inspections?file=part1&city=Denver&limit=5"
+```
+
+### Analysis Endpoints
+```bash
+# Cities with inspection counts
+curl http://localhost:5001/api/cities
+curl "http://localhost:5001/api/cities?limit=200"
+
+# Inspection types breakdown  
+curl http://localhost:5001/api/inspection-types
+curl "http://localhost:5001/api/inspection-types?limit=300"
+
+# Quick overview statistics
+curl http://localhost:5001/api/stats
+```
+
+### AI-Powered Chat
+```bash
+# Cities analysis
+curl -X POST http://localhost:5001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What cities have the most sewer inspections?"}'
+
+# Project types
+curl -X POST http://localhost:5001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What kind of inspection projects are in this data?"}'
+
+# Emergency analysis
+curl -X POST http://localhost:5001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Show me emergency inspections by city"}'
+
+# Infrastructure planning
+curl -X POST http://localhost:5001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Which cities should we prioritize for infrastructure investment?"}'
+
+# Data overview
+curl -X POST http://localhost:5001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Give me an overview of this sewer inspection data"}'
+
+# Contractor analysis
+curl -X POST http://localhost:5001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Which contractors perform the most inspections?"}'
+```
+
+### Pretty JSON Output (with jq)
+```bash
+# Formatted city analysis
+curl -s http://localhost:5001/api/cities | jq
+
+# Formatted AI response
+curl -s -X POST http://localhost:5001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What cities have the most inspections?"}' | jq
+
+# Formatted inspection data
+curl -s "http://localhost:5001/api/inspections?limit=5" | jq
 ```
 
 ## Sample Queries
@@ -48,6 +130,8 @@ POST /api/chat            # AI-powered natural language queries
 - "Show me emergency inspections by city"  
 - "What kind of inspection projects are in this data?"
 - "Which cities should we prioritize for infrastructure investment?"
+- "Which contractors perform the most work?"
+- "What's the condition of pipes over 30 years old?"
 
 ## Key Features
 
@@ -56,6 +140,14 @@ POST /api/chat            # AI-powered natural language queries
 - ✅ **Interactive Tables**: Sortable results for engineers
 - ✅ **Real-time**: Sub-second response times
 - ✅ **Professional UI**: Clean interface for infrastructure teams
+- ✅ **File-Specific Queries**: Target specific data sources
+- ✅ **Pagination**: Handle large result sets efficiently
+
+## Data Sources
+
+**Available Files**: part1, part2, part5 (parts 3 & 4 not available)
+**Total Size**: ~5GB of municipal sewer inspection records
+**Format**: JSONL with structured inspection data including location, pipe details, defects, scores
 
 ## Production Considerations
 

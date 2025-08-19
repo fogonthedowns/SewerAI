@@ -23,13 +23,46 @@ ai_service = SewerAIService()
 def home():
     return jsonify({
         "api": "Sewer Inspection AI API",
+        "data_sources": {
+            "available_files": ["part1", "part2", "part5"],
+            "total_size": "~5GB",
+            "note": "Files part3 and part4 are not available"
+        },
         "endpoints": [
-            "GET /api/inspections",
+            "GET /api/inspections?limit=100&offset=0&city=Chicago&file=part1",
+            "GET /api/files - List available data files",
             "GET /api/cities", 
             "GET /api/inspection-types",
             "GET /api/stats",
             "POST /api/chat"
         ]
+    })
+
+@app.route('/api/files')
+def get_files():
+    """GET /api/files - List available data files"""
+    files_info = []
+    
+    for i, filename in enumerate(processor.files):
+        # Get a quick sample to show file info
+        sample_count = 0
+        for record in processor.stream_file(filename):
+            sample_count += 1
+            if sample_count >= 10:  # Just count first 10 for speed
+                break
+        
+        part_name = filename.replace('sewer-inspections-', '').replace('.jsonl', '')
+        files_info.append({
+            "file": part_name,
+            "filename": filename,
+            "status": "available",
+            "sample_records": sample_count
+        })
+    
+    return jsonify({
+        "available_files": files_info,
+        "total_files": len(files_info),
+        "missing_files": ["part3", "part4"]
     })
 
 @app.route('/api/chat', methods=['POST'])
@@ -66,33 +99,73 @@ def chat():
 
 @app.route('/api/inspections')
 def get_inspections():
-    """GET /api/inspections - List inspection records"""
+    """GET /api/inspections - List inspection records with pagination and file filtering"""
     limit = request.args.get('limit', 100, type=int)
+    offset = request.args.get('offset', 0, type=int)
     city = request.args.get('city')
+    file_filter = request.args.get('file')  # e.g., 'part1', 'part2', 'part5'
     
     inspections = []
     count = 0
+    skipped = 0
     
-    for record in processor.stream_all_files():
-        if city and record.get('location', {}).get('city') != city:
-            continue
+    # Determine which files to process
+    if file_filter:
+        target_filename = f"sewer-inspections-{file_filter}.jsonl"
+        if target_filename in processor.files:
+            file_iterator = [processor.stream_file(target_filename)]
+        else:
+            return jsonify({'error': f'File {file_filter} not available. Available: part1, part2, part5'}), 400
+    else:
+        file_iterator = [processor.stream_file(f) for f in processor.files]
+    
+    # Process files
+    for file_stream in file_iterator:
+        for record in file_stream:
+            # Apply filters
+            if city and record.get('location', {}).get('city') != city:
+                continue
             
-        inspections.append({
-            'id': record.get('id'),
-            'type': record.get('inspection_type'),
-            'city': record.get('location', {}).get('city'),
-            'state': record.get('location', {}).get('state'),
-            'score': record.get('inspection_score'),
-            'contractor': record.get('crew', {}).get('contractor')
-        })
+            # Handle offset (skip records)
+            if skipped < offset:
+                skipped += 1
+                continue
+                
+            inspections.append({
+                'id': record.get('id'),
+                'type': record.get('inspection_type'),
+                'city': record.get('location', {}).get('city'),
+                'state': record.get('location', {}).get('state'),
+                'score': record.get('inspection_score'),
+                'contractor': record.get('crew', {}).get('contractor'),
+                'date': record.get('timestamp_utc', '').split('T')[0],  # Just date part
+                'source_file': file_filter if file_filter else 'multiple'
+            })
+            
+            count += 1
+            if count >= limit:
+                break
         
-        count += 1
         if count >= limit:
             break
-            
+    
+    # Calculate pagination info
+    has_more = count == limit  # If we got full limit, there might be more
+    next_offset = offset + limit if has_more else None
+    
     return jsonify({
         'data': inspections, 
-        'count': len(inspections)
+        'count': len(inspections),
+        'filters': {
+            'city': city,
+            'file': file_filter
+        },
+        'pagination': {
+            'offset': offset,
+            'limit': limit,
+            'has_more': has_more,
+            'next_offset': next_offset
+        }
     })
 
 @app.route('/api/cities')
