@@ -15,7 +15,9 @@ class SewerDataProcessor:
             "sewer-inspections-part2.jsonl", 
             "sewer-inspections-part5.jsonl"
         ]
-        
+    
+    # Downloads large S3 file in chunks (8KB pieces), parses JSON lines one-by-one to save memory
+    # Uses generator function to avoid loading entire file into memory
     def stream_file(self, filename: str) -> Iterator[Dict]:
         """Stream JSONL records from a single S3 file"""
         url = f"{self.base_url}{filename}"

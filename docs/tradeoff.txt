@@ -1,0 +1,9 @@
+Next Sprint Priorities (5 items)
+
+PostgreSQL Migration - Replace S3 streaming with indexed database for O(1) pagination
+Authentication - JWT auth with role-based access (city vs contractor views)
+Caching Layer - Redis for frequent AI queries and city analysis
+Advanced Filters - Date ranges, pipe materials, inspection scores, defect types
+Real-time Updates - WebSocket streaming for live inspection data ingestion
+
+Biggest Impact: Database migration (10x faster queries + real pagination)

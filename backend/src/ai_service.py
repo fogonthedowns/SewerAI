@@ -4,10 +4,12 @@ import openai
 from processor import SewerDataProcessor
 
 class SewerAIService:
+    # Initialize OpenAI client and data processor
     def __init__(self):
         openai.api_key = os.getenv('OPENAI_API_KEY')
         self.processor = SewerDataProcessor()
         
+    # Main entry point for processing natural language queries
     def analyze_query(self, user_query: str) -> dict:
         """Process natural language query and return structured response"""
         
@@ -45,6 +47,7 @@ class SewerAIService:
                 "error": str(e)
             }
     
+    # Determine what type of data to fetch based on query keywords
     def _get_relevant_data(self, query: str) -> dict:
         """Fetch relevant data based on query content"""
         query_lower = query.lower()
@@ -60,6 +63,7 @@ class SewerAIService:
             # Default to general overview
             return self._get_overview_data()
     
+    # Fetch and format city inspection analysis data
     def _get_city_data(self) -> dict:
         """Get city analysis data"""
         analysis = self.processor.analyze_cities(limit=1000)  # Increased from 300
@@ -76,6 +80,7 @@ class SewerAIService:
             "summary": f"Analysis of {analysis['total_records_analyzed']} inspections across {analysis['unique_cities']} cities in {analysis['unique_states']} states from 3 available data files"
         }
     
+    # Fetch and format inspection type analysis data
     def _get_project_data(self) -> dict:
         """Get project/inspection type analysis"""
         analysis = self.processor.analyze_projects(limit=1000)  # Increased from 300
@@ -92,6 +97,7 @@ class SewerAIService:
             "summary": f"Analysis of {analysis['total_records_analyzed']} inspections showing {len(analysis['inspection_types'])} different inspection types from 3 data files"
         }
     
+    # Fetch emergency inspection records
     def _get_emergency_data(self) -> dict:
         """Get emergency inspection data"""
         inspections = []
@@ -120,6 +126,7 @@ class SewerAIService:
             "summary": f"Found {len(inspections)} emergency inspections"
         }
     
+    # Generate general system overview statistics
     def _get_overview_data(self) -> dict:
         """Get general overview data"""
         city_analysis = self.processor.analyze_cities(200)
@@ -142,6 +149,7 @@ class SewerAIService:
             "summary": f"Overview of sewer inspection data from {city_analysis['unique_cities']} cities"
         }
     
+    # Build AI system prompt with relevant data context
     def _build_system_prompt(self, data_context: dict) -> str:
         """Build system prompt with data context"""
         
